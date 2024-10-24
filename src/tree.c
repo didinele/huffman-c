@@ -6,33 +6,46 @@
 
 void init_node(struct Node *node, int weight, char symbol)
 {
+    printf("init_node %p %i\n", (void *)node, weight);
+
     node->weight = weight;
     node->symbol = symbol;
     node->left = nullptr;
     node->right = nullptr;
-    node->parent = nullptr;
 }
 
 void free_node(struct Node *node)
 {
+    printf("free_node %p %i\n", (void *)node, node->weight);
+
+    if (node->left != nullptr)
+    {
+        free_node(node->left);
+    }
+
+    if (node->right != nullptr)
+    {
+        free_node(node->right);
+    }
+
     free(node);
 }
 
 void init_node_list(struct NodeList *list, int length)
 {
-    list->nodes = malloc(length * sizeof(struct Node));
+    list->nodes = malloc(length * sizeof(struct Node*));
     list->length = length;
 }
 
 void free_node_list(struct NodeList *list)
 {
-    // probably don't want to actually do anything else here?
+    free(list->nodes);
     free(list);
 }
 
 static inline int compare_nodes(const void *a, const void *b)
 {
-    return ((struct Node *)a)->weight - ((struct Node *)b)->weight;
+    return (*(struct Node **)a)->weight - (*(struct Node **)b)->weight;
 }
 
 struct NodeList *node_list_from_file(FILE *file)
@@ -60,7 +73,9 @@ struct NodeList *node_list_from_file(FILE *file)
     {
         if (count[i] > 0)
         {
-            init_node(&list->nodes[node_index++], count[i], (char)i);
+            struct Node *node = malloc(sizeof(struct Node));
+            init_node(node, count[i], (char)i);
+            list->nodes[node_index++] = node;
         }
     }
 
@@ -71,28 +86,27 @@ struct Node *build_tree(struct NodeList *list)
 {
     if (list->length == 1)
     {
-        struct Node *final = malloc(sizeof(struct Node));
-        memcpy(final, &list->nodes[0], sizeof(struct Node));
-
-        return final;
+        return list->nodes[0];
     }
 
-    qsort(list->nodes, list->length, sizeof(struct Node), &compare_nodes);
+    qsort(list->nodes, list->length, sizeof(struct Node*), &compare_nodes);
 
     struct Node *new_node = malloc(sizeof(struct Node));
-    init_node(new_node, list->nodes[0].weight + list->nodes[1].weight, '\0');
+    init_node(new_node, list->nodes[0]->weight + list->nodes[1]->weight, '\0');
 
-    new_node->left = &list->nodes[0];
-    new_node->left->parent = new_node;
+    struct Node *left = malloc(sizeof(struct Node));
+    memcpy(left, list->nodes[0], sizeof(struct Node));
+    free(list->nodes[0]);
+    new_node->left = left;
 
     struct Node *right = malloc(sizeof(struct Node));
-    memcpy(right, &list->nodes[1], sizeof(struct Node));
-
+    memcpy(right, list->nodes[1], sizeof(struct Node));
+    free(list->nodes[1]);
     new_node->right = right;
-    new_node->right->parent = new_node;
 
-    list->nodes[1] = *new_node;
-    list->nodes = &list->nodes[1];
+    list->nodes[0] = new_node;
+
+    memcpy(&list->nodes[1], &list->nodes[2], (list->length - 2) * sizeof(struct Node*));
     list->length--;
 
     return build_tree(list);

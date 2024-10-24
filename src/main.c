@@ -7,9 +7,11 @@ int main()
 
     struct NodeList *list = node_list_from_file(file);
     struct Node *root = build_tree(list);
+    printf("%i\n", root->weight);
 
     free_node_list(list);
     free_node(root);
     fclose(file);
+
     return 0;
 }

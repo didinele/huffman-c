@@ -3,9 +3,10 @@
 struct Node
 {
     int weight;
+    // null for leafs
     char symbol;
 
-    struct Node *left, *right, *parent;
+    struct Node *left, *right;
 };
 
 void init_node(struct Node *node, int weight, char symbol);
@@ -14,7 +15,7 @@ void free_node(struct Node *node);
 
 struct NodeList
 {
-    struct Node *nodes;
+    struct Node **nodes;
     int length;
 };
 
