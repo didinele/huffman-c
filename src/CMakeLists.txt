@@ -1,5 +1,6 @@
 add_executable(
   huffman-c
+  dict.c
   main.c
   tree.c
 )

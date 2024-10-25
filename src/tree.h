@@ -1,15 +1,17 @@
+#pragma once
+
 #include <stdio.h>
 
 struct Node
 {
     int weight;
     // null for leafs
-    char symbol;
+    unsigned char symbol;
 
     struct Node *left, *right;
 };
 
-void init_node(struct Node *node, int weight, char symbol);
+void init_node(struct Node *node, int weight, unsigned char symbol);
 
 void free_node(struct Node *node);
 
