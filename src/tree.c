@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-void init_node(struct Node *node, int weight, unsigned char symbol)
+void init_node(struct TreeNode *node, int weight, unsigned char symbol)
 {
     node->weight = weight;
     node->symbol = symbol;
@@ -12,7 +12,7 @@ void init_node(struct Node *node, int weight, unsigned char symbol)
     node->right = NULL;
 }
 
-void free_node(struct Node *node)
+void free_node(struct TreeNode *node)
 {
     if (node->left != NULL)
     {
@@ -27,13 +27,13 @@ void free_node(struct Node *node)
     free(node);
 }
 
-void init_node_list(struct NodeList *list, int length)
+void init_node_list(struct TreeNodeList *list, int length)
 {
-    list->nodes = malloc(length * sizeof(struct Node *));
+    list->nodes = malloc(length * sizeof(struct TreeNode *));
     list->length = length;
 }
 
-void free_node_list(struct NodeList *list)
+void free_node_list(struct TreeNodeList *list)
 {
     free(list->nodes);
     free(list);
@@ -41,10 +41,10 @@ void free_node_list(struct NodeList *list)
 
 static inline int compare_nodes(const void *a, const void *b)
 {
-    return (*(struct Node **)a)->weight - (*(struct Node **)b)->weight;
+    return (*(struct TreeNode **)a)->weight - (*(struct TreeNode **)b)->weight;
 }
 
-struct NodeList *node_list_from_file(FILE *file)
+struct TreeNodeList *node_list_from_file(FILE *file)
 {
     assert(file != NULL);
 
@@ -60,7 +60,7 @@ struct NodeList *node_list_from_file(FILE *file)
         }
     }
 
-    struct NodeList *list = malloc(sizeof(struct NodeList));
+    struct TreeNodeList *list = malloc(sizeof(struct TreeNodeList));
     init_node_list(list, unique_chars);
 
     int node_index = 0;
@@ -69,7 +69,7 @@ struct NodeList *node_list_from_file(FILE *file)
     {
         if (count[i] > 0)
         {
-            struct Node *node = malloc(sizeof(struct Node));
+            struct TreeNode *node = malloc(sizeof(struct TreeNode));
             init_node(node, count[i], (unsigned char)i);
             list->nodes[node_index++] = node;
         }
@@ -78,32 +78,42 @@ struct NodeList *node_list_from_file(FILE *file)
     return list;
 }
 
-struct Node *build_tree(struct NodeList *list)
+void init_tree(struct Tree *tree, struct TreeNode *root, int node_count) {
+    tree->root = root;
+    tree->node_count = node_count;
+}
+
+void free_tree(struct Tree *tree) {
+    free_node(tree->root);
+    free(tree);
+}
+
+struct TreeNode *build_tree_root(struct TreeNodeList *list)
 {
     if (list->length == 1)
     {
         return list->nodes[0];
     }
 
-    qsort(list->nodes, list->length, sizeof(struct Node *), &compare_nodes);
+    qsort(list->nodes, list->length, sizeof(struct TreeNode *), &compare_nodes);
 
-    struct Node *new_node = malloc(sizeof(struct Node));
+    struct TreeNode *new_node = malloc(sizeof(struct TreeNode));
     init_node(new_node, list->nodes[0]->weight + list->nodes[1]->weight, '\0');
 
-    struct Node *left = malloc(sizeof(struct Node));
-    memcpy(left, list->nodes[0], sizeof(struct Node));
+    struct TreeNode *left = malloc(sizeof(struct TreeNode));
+    memcpy(left, list->nodes[0], sizeof(struct TreeNode));
     free(list->nodes[0]);
     new_node->left = left;
 
-    struct Node *right = malloc(sizeof(struct Node));
-    memcpy(right, list->nodes[1], sizeof(struct Node));
+    struct TreeNode *right = malloc(sizeof(struct TreeNode));
+    memcpy(right, list->nodes[1], sizeof(struct TreeNode));
     free(list->nodes[1]);
     new_node->right = right;
 
     list->nodes[0] = new_node;
 
-    memcpy(&list->nodes[1], &list->nodes[2], (list->length - 2) * sizeof(struct Node *));
+    memcpy(&list->nodes[1], &list->nodes[2], (list->length - 2) * sizeof(struct TreeNode *));
     list->length--;
 
-    return build_tree(list);
+    return build_tree_root(list);
 }

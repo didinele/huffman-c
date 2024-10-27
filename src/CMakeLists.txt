@@ -1,6 +1,7 @@
 add_executable(
   huffman-c
   dict.c
+  encoder.c
   main.c
   tree.c
 )
