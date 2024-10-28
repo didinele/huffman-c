@@ -81,15 +81,21 @@ void write_body(FILE *out, FILE *in, struct DictEntry dict[255])
     }
 
     // Flush the remaining bits, fill to the right with 0s if necessary,
-    // because at that point we know for a fact we'll have reached a leaf.
+    // because at that point we know for a fact we'll have reached a leaf,
+    // and also the last byte in the file should be how many bits of padding we have.
+    unsigned char padding = 0;
+
     if (bits_buf_index > 0)
     {
         while (bits_buf_index < 8)
         {
             bits_buf[bits_buf_index++] = 0;
+            padding++;
         }
 
         unsigned char byte = bit_array_to_byte(bits_buf);
         fwrite(&byte, sizeof(unsigned char), 1, out);
     }
+
+    fwrite(&padding, sizeof(unsigned char), 1, out);
 }

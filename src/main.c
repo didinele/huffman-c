@@ -1,10 +1,11 @@
+#include "decoder.h"
 #include "dict.h"
 #include "encoder.h"
 #include "tree.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-int main()
+static inline void encode()
 {
     FILE *in = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/in.txt", "r");
     FILE *out = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/out.bin", "w");
@@ -21,10 +22,31 @@ int main()
     write_body(out, in, dict);
 
     free_node_list(list);
+    free_node(root);
     free(dict);
 
     fclose(in);
     fclose(out);
+}
+
+static inline void decode()
+{
+    FILE *bin = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/out.bin", "r");
+
+    struct TreeNode* root = read_header(bin);
+    char *decoded = read_body(bin, root);
+
+    printf("%s\n", decoded);
+
+    free_node(root);
+    free(decoded);
+    fclose(bin);
+}
+
+int main()
+{
+    encode();
+    decode();
 
     return 0;
 }

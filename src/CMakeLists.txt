@@ -5,6 +5,7 @@ add_executable(
   dict.c
   encoder.c
   main.c
+  tiny-string.c
   tree.c
 )
 
