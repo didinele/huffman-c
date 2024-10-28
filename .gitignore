@@ -4,3 +4,5 @@ build
 decoded.out
 encoded.out
 original.in
+
+.DS_Store
