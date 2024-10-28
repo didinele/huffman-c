@@ -3,9 +3,9 @@ add_executable(
 
   decoder.c
   dict.c
+  dyn-string.c
   encoder.c
   main.c
-  tiny-string.c
   tree.c
 )
 

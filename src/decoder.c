@@ -1,5 +1,5 @@
 #include "decoder.h"
-#include "tiny-string.h"
+#include "dyn-string.h"
 #include "tree.h"
 #include <assert.h>
 #include <stdio.h>
@@ -68,11 +68,11 @@ static inline struct TreeNode *read_tree_node(struct TreeNode *root, FILE *bin)
 
 // For all intents and purposes, while decoding we do not care about weights.
 // They don't even exist within the encoded file, we simply set it to 0.
-struct TreeNode* read_header(FILE *bin)
+struct TreeNode *read_header(FILE *bin)
 {
     assert(bin != NULL);
 
-    struct TreeNode* root = malloc(sizeof(struct TreeNode));
+    struct TreeNode *root = malloc(sizeof(struct TreeNode));
     init_node(root, 0, '\0');
 
     read_tree_node(root, bin);
@@ -80,15 +80,15 @@ struct TreeNode* read_header(FILE *bin)
     return root;
 }
 
-char *read_body(FILE *bin, struct TreeNode *root)
+struct DynString *read_body(FILE *bin, struct TreeNode *root)
 {
     assert(bin != NULL);
 
     // We need a copy of our root pointer to reset to
     struct TreeNode *root_copy = root;
 
-    struct TinyString string;
-    init_string(&string, 16);
+    struct DynString *string = malloc(sizeof(struct DynString));
+    init_dyn_string(string, 16);
 
     // We need the last byte to tell how much padding we have, but first let's save where we are
     long pos = ftell(bin);
@@ -119,7 +119,7 @@ char *read_body(FILE *bin, struct TreeNode *root)
             // If we're at a leaf, write the symbol
             if (root->symbol != '\0')
             {
-                push_to_string(&string, root->symbol);
+                push_to_dyn_string(string, root->symbol);
                 // Reset the root
                 root = root_copy;
             }
@@ -131,5 +131,5 @@ char *read_body(FILE *bin, struct TreeNode *root)
         }
     }
 
-    return string.data;
+    return string;
 }

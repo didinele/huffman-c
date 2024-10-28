@@ -1,52 +1,92 @@
 #include "decoder.h"
 #include "dict.h"
+#include "dyn-string.h"
 #include "encoder.h"
 #include "tree.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-static inline void encode()
+#define INVALID_COMMAND                                                                            \
+    do                                                                                             \
+    {                                                                                              \
+        fprintf(stderr, "Usage: %s <encode|decode> <input file> <output file>\n", argv[0]);        \
+        return EXIT_FAILURE;                                                                       \
+    }                                                                                              \
+    while (1)
+
+int main(int argc, char **argv)
 {
-    FILE *in = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/in.txt", "r");
-    FILE *out = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/out.bin", "w");
+    if (argc != 4)
+    {
+        INVALID_COMMAND;
+    }
 
-    struct TreeNodeList *list = node_list_from_file(in);
+    if (strcmp(argv[1], "encode") == 0)
+    {
+        FILE *in = fopen(argv[2], "r");
+        if (in == NULL)
+        {
+            perror("failed to open input file");
+            return EXIT_FAILURE;
+        }
 
-    // We'll reuse the file pointer, so we need to rewind it.
-    rewind(in);
+        FILE *out = fopen(argv[3], "w");
+        if (out == NULL)
+        {
+            perror("failed to open output file");
+            return EXIT_FAILURE;
+        }
 
-    struct TreeNode *root = build_tree_root(list);
-    struct DictEntry *dict = tree_to_dict(root);
+        struct TreeNodeList *list = node_list_from_file(in);
 
-    write_header(out, root);
-    write_body(out, in, dict);
+        // We'll reuse the FILE, so we need to rewind it.
+        rewind(in);
 
-    free_node_list(list);
-    free_node(root);
-    free(dict);
+        struct TreeNode *root = build_tree_root(list);
+        struct DictEntry *dict = tree_to_dict(root);
 
-    fclose(in);
-    fclose(out);
-}
+        write_header(out, root);
+        write_body(out, in, dict);
 
-static inline void decode()
-{
-    FILE *bin = fopen("/Users/didinele/Documents/Work/didinele/huffman-c/out.bin", "r");
+        free_node_list(list);
+        free_node(root);
+        free(dict);
 
-    struct TreeNode* root = read_header(bin);
-    char *decoded = read_body(bin, root);
+        fclose(in);
+        fclose(out);
+    }
+    else if (strcmp(argv[1], "decode") == 0)
+    {
+        FILE *in = fopen(argv[2], "r");
+        if (in == NULL)
+        {
+            perror("failed to open input file");
+            return EXIT_FAILURE;
+        }
 
-    printf("%s\n", decoded);
+        FILE *out = fopen(argv[3], "w");
+        if (out == NULL)
+        {
+            perror("failed to open output file");
+            return EXIT_FAILURE;
+        }
 
-    free_node(root);
-    free(decoded);
-    fclose(bin);
-}
+        struct TreeNode *root = read_header(in);
+        struct DynString *decoded = read_body(in, root);
 
-int main()
-{
-    encode();
-    decode();
+        fwrite(decoded->data, sizeof(char), decoded->length, out);
 
-    return 0;
+        free_node(root);
+        free(decoded);
+
+        fclose(in);
+        fclose(out);
+    }
+    else
+    {
+        INVALID_COMMAND;
+    }
+
+    return EXIT_SUCCESS;
 }
