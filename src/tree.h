@@ -25,13 +25,4 @@ void free_node_list(struct TreeNodeList *list);
 
 struct TreeNodeList *node_list_from_file(FILE *file);
 
-struct Tree
-{
-    struct TreeNode *root;
-    int node_count;
-};
-
-void init_tree(struct Tree *tree, struct TreeNode *root, int node_count);
-void free_tree(struct Tree *tree);
-
 struct TreeNode *build_tree_root(struct TreeNodeList *list);

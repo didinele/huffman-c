@@ -14,22 +14,13 @@ int main()
     // We'll reuse the file pointer, so we need to rewind it.
     rewind(in);
 
-    // build_tree_root does not keep the list intact, we need to preserve the length of the list
-    // before this function call.
-    int leaf_node_count = list->length;
     struct TreeNode *root = build_tree_root(list);
+    struct DictEntry *dict = tree_to_dict(root);
 
-    struct Tree *tree = malloc(sizeof(struct Tree));
-    // "A finished tree has up to n leaf nodes and n - 1 internal nodes."
-    init_tree(tree, root, 2 * leaf_node_count - 1);
-
-    struct DictEntry *dict = tree_to_dict(tree);
-
-    write_header(out, tree);
+    write_header(out, root);
     write_body(out, in, dict);
 
     free_node_list(list);
-    free_tree(tree);
     free(dict);
 
     fclose(in);

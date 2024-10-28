@@ -1,5 +1,7 @@
 add_executable(
   huffman-c
+
+  decoder.c
   dict.c
   encoder.c
   main.c

@@ -5,32 +5,38 @@
 
 static inline void write_tree_node(FILE *out, struct TreeNode *node)
 {
+#define WRITE_TYPE(type) fwrite(&type, sizeof(unsigned char), 1, out)
+
+    if (node == NULL)
+    {
+        // Write a 0 to indicate that this node is null
+        unsigned char type = 0;
+        WRITE_TYPE(type);
+
+        return;
+    }
+
     if (node->symbol == 0)
     {
-        // 0 for internal node
-        unsigned char type = 0;
-        fwrite(&type, sizeof(unsigned char), 1, out);
+        // 1 for node with no data
+        unsigned char type = 1;
+        WRITE_TYPE(type);
     }
     else
     {
-        // 1 for leaf node
-        unsigned char type = 1;
-        fwrite(&type, sizeof(unsigned char), 1, out);
+        // 2 is for node with data
+        unsigned char type = 2;
+        WRITE_TYPE(type);
+
         // Write the symbol for our leaf
         fwrite(&node->symbol, sizeof(unsigned char), 1, out);
     }
 
     // Write the left and right children
-    if (node->left != NULL)
-    {
-        write_tree_node(out, node->left);
-    }
+    write_tree_node(out, node->left);
+    write_tree_node(out, node->right);
 
-    if (node->right != NULL)
-    {
-
-        write_tree_node(out, node->right);
-    }
+#undef WRITE_TYPE
 }
 
 static inline unsigned char bit_array_to_byte(bool bits[8])
@@ -45,15 +51,10 @@ static inline unsigned char bit_array_to_byte(bool bits[8])
     return byte;
 }
 
-void write_header(FILE *out, struct Tree *tree)
+void write_header(FILE *out, struct TreeNode *root)
 {
     assert(out != NULL);
-
-    // Write the number of nodes in the tree
-    fwrite(&tree->node_count, sizeof(int), 1, out);
-
-    // Start writing the nodes
-    write_tree_node(out, tree->root);
+    write_tree_node(out, root);
 }
 
 void write_body(FILE *out, FILE *in, struct DictEntry dict[255])

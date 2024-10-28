@@ -17,4 +17,4 @@ void init_dict_entry(struct DictEntry *entry);
 
 void free_dict_entry(struct DictEntry *entry);
 
-struct DictEntry *tree_to_dict(struct Tree *root);
+struct DictEntry *tree_to_dict(struct TreeNode *root);

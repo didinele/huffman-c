@@ -47,7 +47,7 @@ static inline void traverse_tree(
     traverse_tree(dict, right_code, bit_array_index + 1, root->right);
 }
 
-struct DictEntry *tree_to_dict(struct Tree *tree)
+struct DictEntry *tree_to_dict(struct TreeNode *root)
 {
     struct DictEntry *dict = malloc(256 * sizeof(struct DictEntry));
     for (int i = 0; i < 256; i++)
@@ -56,7 +56,7 @@ struct DictEntry *tree_to_dict(struct Tree *tree)
     }
 
     bool code[255] = {0};
-    traverse_tree(dict, code, 0, tree->root);
+    traverse_tree(dict, code, 0, root);
 
     return dict;
 }

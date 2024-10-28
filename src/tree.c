@@ -78,16 +78,6 @@ struct TreeNodeList *node_list_from_file(FILE *file)
     return list;
 }
 
-void init_tree(struct Tree *tree, struct TreeNode *root, int node_count) {
-    tree->root = root;
-    tree->node_count = node_count;
-}
-
-void free_tree(struct Tree *tree) {
-    free_node(tree->root);
-    free(tree);
-}
-
 struct TreeNode *build_tree_root(struct TreeNodeList *list)
 {
     if (list->length == 1)
