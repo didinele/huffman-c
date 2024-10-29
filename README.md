@@ -26,13 +26,13 @@ $ touch original.in encoded.out decoded.out
 $ echo A_DEAD_DAD_CEDED_A_BAD_BABE_A_BEADED_ABACA_BED > original.in # example taken from the Wikipedia page
 $ ./build/src/huffman-c encode ./original.in ./encoded.out
 $ ./build/src/huffman-c decode ./encoded.out ./decoded.out
-$ # ./encoded.out can be inspected with a binary editor
+$ # ./encoded.out can be inspected with a binary editor. the format is explained in the blog post below
 $ cat ./decoded.out # should print out the original string, A_DEAD_DAD_CEDED_A_BAD_BABE_A_BEADED_ABACA_BED
 ```
 
-## Further reading
+## More reading
 
-I have a write up about my thought process, progress, and implementation details on my blog (TBD).
+I wrote a quick blog post of my process [here](https://didinele.dev/blog/2024/10/huffman-coding).
 
 ## LICENSE
 
